@@ -1,5 +1,41 @@
+# %%
 import pandas as pd
+import matplotlib as mpl
 
-tools = pd.read_fwf(r'./data/tool_H09.t')
+pd.set_option('max_columns', None)
+pd.set_option('max_rows', None)
 
-print(tools)
+# %%
+with open('./data-examples/tool_H09.t') as data_table:
+    table = data_table.readlines()
+    names = table[1].split()
+    colspecs_array = []
+    prev_i = int()
+    for i, k in enumerate(table[1]):
+        if k!=" ":
+            if (i!=prev_i+1):
+                colspecs_array.append(i)
+            prev_i = i
+    tup_i_array = [(colspecs_array[i], colspecs_array[i+1]) for i in range(len(colspecs_array)-1)]
+
+# %%
+print(tup_i_array)
+len(colspecs_array)
+
+# %%
+# widths = [9,    32,     12,  12,  12,   10,   10,   10,    11,     6,       6,       9,          9,     32,    10,    12,      8,       4,     7,      7,      7,       7,        12,       12,       7,        7,        10,     8,         7,       8,         21,         5,      8,         10,   7,    7,    7,    7,    7,    7,    7,    10,    4,     8,       9,          10,          10,          20,          10,         8]
+# widths = ['T', 'NAME', 'L', 'R', 'R2', 'DL', 'DR', 'DR2', 'TLRT', 'TIME1', 'TIME2', 'CUR_TIME', 'TYP', 'DOC', 'PLC', 'LCUTS', 'ANGLE', 'CUT', 'LTOL', 'RTOL', 'R2TOL', 'DIRECT', 'R-OFFS', 'L-OFFS', 'LBREAK', 'RBREAK', 'NMAX', 'LIFTOFF', 'TP_NO', 'T-ANGLE', 'LAST_USE', 'PTYP', 'PLC-VAL', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'AFC', 'ACC', 'PITCH', 'AFC-LOAD', 'AFC-OVLD1', 'AFC-OVLD2', 'KINEMATIC', 'DR2TABLE', 'OVRTIME']
+# names = ['T', 'NAME', 'L', 'R', 'R2', 'DL', 'DR', 'DR2', 'TLRT', 'TIME1', 'TIME2', 'CUR_TIME', 'TYP', 'DOC', 'PLC', 'LCUTS', 'ANGLE', 'CUT', 'LTOL', 'RTOL', 'R2TOL', 'DIRECT', 'R-OFFS', 'L-OFFS', 'LBREAK', 'RBREAK', 'NMAX', 'LIFTOFF', 'TP_NO', 'T-ANGLE', 'LAST_USE', 'PTYP', 'PLC-VAL', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'AFC', 'ACC', 'PITCH', 'AFC-LOAD', 'AFC-OVLD1', 'AFC-OVLD2', 'KINEMATIC', 'DR2TABLE', 'OVRTIME']
+tools = pd.read_fwf(r'./data-examples/tool_H09.t', 
+                    skiprows=2, skipfooter=1, names=names, colspecs=tup_i_array, index_col=None)# infer_nrows=1
+tools
+# %%
+tools.info()
+
+# %%
+tools.loc[1, 'NAME']
+# %%
+len(widths)
+# %%
+len(names)
+# %%
