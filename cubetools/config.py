@@ -1,9 +1,14 @@
 
 # available machines tool.t-files with relative path to it
 import pathlib
+import pandas as pd
 
-toolt_file = {"HERMLE 09":'./data-examples/tool_H09.t', 
-              "HERMLE 10":'./data-examples/tool_H10.t'
+
+pd.set_option('max_columns', None)
+pd.set_option('max_rows', None)
+
+tool_files = {"HERMLE_10":'./data-examples/HERMLE_10/', 
+              "HERMLE_07":'./data-examples/HERMLE_07/'
               }
 
 save_path = str(pathlib.Path().absolute()) + '/exported/'

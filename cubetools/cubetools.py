@@ -13,7 +13,10 @@ class CTController():
         self.view.go_button.clicked.connect(export_tooltable)
 
 
-
+def check_filelist():
+    filelist = {name: dir_path for name, dir_path in cfg.tool_files.items() 
+                    if os.path.isfile(dir_path + 'tool.t') and os.path.isfile(dir_path + 'tool_p.tch')}
+    return filelist
 
 def header_parser(toolt_file):
     '''Parse headers indexes to define column widths.'''
@@ -37,31 +40,38 @@ def header_parser(toolt_file):
 # print(headers_data.values())
 
 
-def read_tooltable(toolt_file_path):
-    
-    headers = header_parser(toolt_file_path)
-    pd.set_option('max_columns', None)
-    pd.set_option('max_rows', None)
-    tools = pd.read_fwf(toolt_file_path, 
+def read_tooltable(tool_file_path):
+    '''Align imported tables with headers'''
+    headers = header_parser(tool_file_path)
+    tools = pd.read_fwf(tool_file_path, 
                         skiprows=2, skipfooter=1, names=headers.keys(), 
                         colspecs=list(headers.values()), index_col=None)# infer_nrows=1
+    tools = tools.dropna(subset=["T"])
     tools = tools.astype({"T":int})
     return tools
 
-# def magazin_tools(pd_tools):
-#     '''Find tools in the tool-table those are in magazin available by 4th bit of 8-digit binary PLC-value'''   
-#     magazin_tools = pd_tools.loc[[i[4]=="1" for i in pd_tools["PLC"]]]
-#     magazin_tools.set_index("T")
-#     magazin_tools = magazin_tools.loc[:,['T', 'NAME', 'L', 'DOC']]
+def magazin_tools():
+    '''Find tools in the tool-table those are in magazine available'''
+    
+    # magazin_tools = pd_tools.loc[[i[4]=="1" for i in pd_tools["PLC"]]]
+    # magazin_tools.set_index("T")
+    # magazin_tools = magazin_tools.loc[:,['T', 'NAME', 'L', 'DOC']]
+    # return magazin_tools
 
 def export_tooltable():
-    toolt_filelist = cfg.toolt_file
+    '''Exports pandas-tables in various formats '''
+    
     for (name, path) in toolt_filelist.items():
-        tools_table = read_tooltable(path)
+        tools_table = read_tooltable(path+'tool.t')
         tools_table.to_excel(r'./exported/' + name + '.xlsx', index=False)
         tools_table.to_csv(r'./exported/' + name + '.csv', index=False)
         tools_table.to_json(r'./exported/' + name + '.json')
-        message = "Export complete"
+    for (name, path) in tooltch_filelist.items():
+        tools_table = read_tooltable(path+'tool_p.tch')
+        tools_table.to_excel(r'./exported/' + name + '_magazine.xlsx', index=False)
+        tools_table.to_csv(r'./exported/' + name + '_magazine.csv', index=False)
+        tools_table.to_json(r'./exported/' + name + '_magazine.json')
+    message = "Export is complete"
     return message
     # print('EXPORTED!')
 
@@ -72,9 +82,11 @@ if __name__ == '__main__':
     import sys
 
     def run():
-        app = QApplication(sys.argv)
-        window = mainframe.CubeToolsGUI()
-        window.show()
-        CTController(view=window)
-        sys.exit(app.exec_())
+        # app = QApplication(sys.argv)
+        # window = mainframe.CubeToolsGUI()
+        # window.show()
+        print(check_filelist())        
+        # CTController(view=window)
+        # sys.exit(app.exec_())
+
     run()

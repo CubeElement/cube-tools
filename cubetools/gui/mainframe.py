@@ -39,8 +39,6 @@ class CubeToolsGUI(QWidget):
         self.go_button.setGeometry(0, 0, 30, 20)
         self.layout.addWidget(self.go_button, 2, 2)
     
-    def export_all(self):
-        print('Hello!')
 
         # settings_button = QPushButton("Settings")
         # settings_button.setGeometry(0, 0, 30, 20)
