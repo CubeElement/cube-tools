@@ -11,4 +11,5 @@ tool_files = {"HERMLE_10":'./data-examples/HERMLE_10/',
               "HERMLE_09":'./data-examples/HERMLE_09/'
               }
 
-save_path = str(pathlib.Path().absolute()) + '/exported/'
+
+save_path = str(pathlib.Path().absolute()) + '/exported'

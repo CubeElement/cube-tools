@@ -57,21 +57,24 @@ class Model():
         # magazin_tools = magazin_tools.loc[:,['T', 'NAME', 'L', 'DOC']]
         # return magazin_tools
 
-    def export_tooltable(self, path_field: str):
+    def export_tooltable(self, path_field: str, selected_machines):
         '''Exports pandas-tables in various formats '''
-        self.path_field = path_field + "/"
-        for (name, path) in cfg.tool_files.items():
-            tools_table = self.read_tooltable(path+'tool.t')
-            tools_table.to_excel(self.path_field + name + '.xlsx', index=False)
-            tools_table.to_csv(self.path_field + name + '.csv', index=False)
-            tools_table.to_json(self.path_field + name + '.json')
-        for (name, path) in cfg.tool_files.items():
-            tools_table = self.read_tooltable(path+'tool_p.tch')
-            tools_table.to_excel(self.path_field + name + '_magazine.xlsx', index=False)
-            tools_table.to_csv(self.path_field + name + '_magazine.csv', index=False)
-            tools_table.to_json(self.path_field + name + '_magazine.json')
+        self.path_field = path_field
+        self.selected_machines = selected_machines
+        print(self.selected_machines, '-- a list of machines')
+        for (sel_name, sel_path) in {(name, path) for name, path in cfg.tool_files.items() if name in selected_machines}:
+            tools_table = self.read_tooltable(sel_path+'tool.t')
+            tools_table.to_excel(self.path_field + "/" + sel_name + '.xlsx', index=False)
+            # tools_table.to_csv(self.path_field + name + '.csv', index=False)
+            # tools_table.to_json(self.path_field + name + '.json')
+            # print(self.path_field + "/" + sel_name + '.json', " file to export")
+        # for (name, path) in cfg.tool_files.items():
+            # tools_table = self.read_tooltable(path+'tool_p.tch')
+            # tools_table.to_excel(self.path_field + name + '_magazine.xlsx', index=False)
+            # tools_table.to_csv(self.path_field + name + '_magazine.csv', index=False)
+            # tools_table.to_json(self.path_field + name + '_magazine.json')
+        print(self.path_field + ' folder to export has taken')
         message = "Export is complete"
-        print(self.path_field+' exported')
         return message
 
 # def run():
