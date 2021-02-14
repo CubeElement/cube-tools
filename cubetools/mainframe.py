@@ -3,9 +3,9 @@
 import os
 import sys
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtWidgets import QGridLayout, QPushButton, QLineEdit, QListWidget, QFileDialog, QApplication, QAbstractItemView, QDesktopWidget, QErrorMessage
+from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFont, QIcon
+
 from functools import partial
 from model import Model
 import config as cfg
@@ -34,10 +34,10 @@ class CubeToolsGUI(QWidget):
 
         self.path_button = QPushButton()
         self.path_button.setIcon(QIcon("./resources/folder-icon.png"))
-        self.layout.addWidget(self.path_button, 0, 0, 1, 1)
+        self.layout.addWidget(self.path_button, 0, 1, 1, 2)
 
         self.path_field = QLineEdit()
-        self.layout.addWidget(self.path_field, 0, 1, 1, 2)
+        self.layout.addWidget(self.path_field, 0, 0, 1, 1)
 
 
         self.machine_list = QListWidget(self)
@@ -46,13 +46,22 @@ class CubeToolsGUI(QWidget):
         self.machine_list.insertItems(0, self.create_machinelist())
         self.layout.addWidget(self.machine_list, 1, 0, 1, -1)
 
-        self.go_button = QPushButton("GO!", self)
-        self.go_button.setGeometry(0, 0, 30, 20)
-        self.layout.addWidget(self.go_button, 2, 2)
+        # self.go_button = QPushButton("GO!", self)
+        # self.go_button.setGeometry(0, 0, 5, 5)
+        # self.layout.addWidget(self.go_button, 2, 2)
 
-        # settings_button = QPushButton("Settings")
-        # settings_button.setGeometry(0, 0, 30, 20)
-        # self.layout.addWidget(settings_button, 2, 0)
+        self.formats_chboxes = QGroupBox("Select formats")
+        self.chbox1 = QCheckBox(".xlsx")
+        self.chbox2 = QCheckBox(".csv")
+        self.chbox3 = QCheckBox(".json")
+        self.go_button = QPushButton("GO!", self)
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.chbox1)
+        hbox.addWidget(self.chbox2)
+        hbox.addWidget(self.chbox3)
+        hbox.addWidget(self.go_button)
+        self.formats_chboxes.setLayout(hbox)
+        self.layout.addWidget(self.formats_chboxes, 2, 0, 2, -1)
 
     def center(self):
         pos = self.frameGeometry()
