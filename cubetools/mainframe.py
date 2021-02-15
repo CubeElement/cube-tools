@@ -22,7 +22,7 @@ class CubeToolsGUI(QWidget):
         self.layout = QGridLayout()
         self.setLayout(self.layout)
         self.ui_items()
-        self.center()
+        self.center_ui()
         self.reset_ui()
         self.connect_signals()
         self.show()
@@ -34,17 +34,17 @@ class CubeToolsGUI(QWidget):
 
         self.path_button = QPushButton()
         self.path_button.setIcon(QIcon("./resources/folder-icon.png"))
-        self.layout.addWidget(self.path_button, 0, 1, 1, 2)
+        self.layout.addWidget(self.path_button, 1, 1, 1, 2)
 
         self.path_field = QLineEdit()
-        self.layout.addWidget(self.path_field, 0, 0, 1, 1)
+        self.layout.addWidget(self.path_field, 1, 0, 1, 1)
 
 
         self.machine_list = QListWidget(self)
         self.machine_list.setFont(font)
         self.machine_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.machine_list.insertItems(0, self.create_machinelist())
-        self.layout.addWidget(self.machine_list, 1, 0, 1, -1)
+        self.layout.addWidget(self.machine_list, 0, 0, 1, -1)
 
         # self.go_button = QPushButton("GO!", self)
         # self.go_button.setGeometry(0, 0, 5, 5)
@@ -63,7 +63,7 @@ class CubeToolsGUI(QWidget):
         self.formats_chboxes.setLayout(hbox)
         self.layout.addWidget(self.formats_chboxes, 2, 0, 2, -1)
 
-    def center(self):
+    def center_ui(self):
         pos = self.frameGeometry()
         cpoint = QDesktopWidget().availableGeometry().center()
         pos.moveCenter(cpoint)
@@ -71,6 +71,8 @@ class CubeToolsGUI(QWidget):
 
     def reset_ui(self):
         self.path_field.setText(cfg.save_path)
+        self.fileformat_selected = set()
+
         pass
 
     def create_machinelist(self):
@@ -88,7 +90,19 @@ class CubeToolsGUI(QWidget):
     def connect_signals(self):
         self.path_button.clicked.connect(self.set_savepathSlot)
         self.go_button.clicked.connect(self.exportSlot)
-        self.machine_list.itemSelectionChanged.connect(self.retrieve_machinesSlot)  
+        self.machine_list.itemSelectionChanged.connect(self.retrieve_machinesSlot)
+        self.chbox1.stateChanged.connect(self.set_fileformats)
+        self.chbox2.stateChanged.connect(self.set_fileformats)
+        self.chbox3.stateChanged.connect(self.set_fileformats)
+
+    def set_fileformats(self):
+        if self.sender().isChecked() and self.sender().text() not in self.fileformat_selected:
+            self.fileformat_selected.add(self.sender().text())
+            # print(self.ext_set, " item added")
+        elif self.sender().text() in self.fileformat_selected:
+            self.fileformat_selected.remove(self.sender().text())
+            # print(self.ext_set, " item removed")
+        return self.fileformat_selected
 
     def retrieve_machinesSlot(self):
         for name in self.machine_list.selectedItems():
@@ -112,10 +126,12 @@ class CubeToolsGUI(QWidget):
     #     print(self.path_field.text())
 
     def exportSlot(self):
-        self.selected_machines = list(item.text() for item in self.machine_list.selectedItems())
+        self.machines_selected = list(item.text() for item in self.machine_list.selectedItems())
                                       
         self.model.export_tooltable(self.get_savepathSlot(), 
-                                    self.selected_machines)
+                                    self.machines_selected,
+                                    self.fileformat_selected
+                                    )
 
 def run():
     app = QApplication(sys.argv)

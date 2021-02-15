@@ -57,17 +57,20 @@ class Model():
         # magazin_tools = magazin_tools.loc[:,['T', 'NAME', 'L', 'DOC']]
         # return magazin_tools
 
-    def export_tooltable(self, path_field: str, selected_machines):
+    def export_tooltable(self, path_field: str, machines_selected, fileformat_selected):
         '''Exports pandas-tables in various formats '''
         self.path_field = path_field
-        self.selected_machines = selected_machines
-        print(self.selected_machines, '-- a list of machines')
-        for (sel_name, sel_path) in {(name, path) for name, path in cfg.tool_files.items() if name in selected_machines}:
+        self.machines_selected = machines_selected
+        self.fileformat_selected = fileformat_selected
+        print(self.machines_selected, '-- a list of machines')
+        print(self.fileformat_selected, '-- extensions')
+
+        for (sel_name, sel_path) in {(name, path) for name, path in 
+                                      cfg.tool_files.items() if name in self.machines_selected}:
             tools_table = self.read_tooltable(sel_path+'tool.t')
             tools_table.to_excel(self.path_field + "/" + sel_name + '.xlsx', index=False)
             # tools_table.to_csv(self.path_field + name + '.csv', index=False)
             # tools_table.to_json(self.path_field + name + '.json')
-            # print(self.path_field + "/" + sel_name + '.json', " file to export")
         # for (name, path) in cfg.tool_files.items():
             # tools_table = self.read_tooltable(path+'tool_p.tch')
             # tools_table.to_excel(self.path_field + name + '_magazine.xlsx', index=False)
@@ -76,6 +79,13 @@ class Model():
         print(self.path_field + ' folder to export has taken')
         message = "Export is complete"
         return message
+    
+    # def export_to_excel(self, path):
+
+    # def export_to_csv(self, path):
+
+    # def export_to_json(self, path):
+
 
 # def run():
 #     app = QApplication(sys.argv)
