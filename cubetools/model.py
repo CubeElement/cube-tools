@@ -2,20 +2,35 @@ import pandas as pd
 import openpyxl
 import sys
 import os
+import re
 from PyQt5.QtWidgets import QApplication, QFileDialog
 from PyQt5.QtCore import QAbstractTableModel, Qt, QVariant
 
-import config as cfg
+import cubetools.config as cfg
 
 class Model():
     def __init__(self):
         super().__init__()
-        self.check_filelist()
+        self.dir_regex = r"^[a-zA-Z0-9/_.-]+$"
+        # import pdb; pdb.set_trace()
+        self.checked_files = self.check_filelist()
 
     def check_filelist(self):
-        filelist = {name: dir_path for name, dir_path in cfg.tool_files.items() 
-                        if os.path.isfile(dir_path + 'tool.t') and os.path.isfile(dir_path + 'tool_p.tch')}
-        return filelist
+        filelist = {}
+        if cfg.tool_files:
+            for name, dir_path in cfg.tool_files.items():
+                str_dir = str(dir_path)
+                dir_match = re.match(self.dir_regex, str_dir)
+                is_matched = bool(dir_match)
+                if is_matched is not False:
+                    if (os.path.isfile(str_dir + 'tool.t') and 
+                    os.path.isfile(str_dir + 'tool_p.tch')):
+                        filelist[name] = str_dir
+                else:
+                    return False
+            if not filelist:
+                return False
+            return filelist
 
     def header_parser(self, toolt_file):
         '''Parse headers indexes to define column widths.'''
@@ -58,16 +73,17 @@ class Model():
         print(self.fileformat_selected, '-- extensions')
         print(self.path_field + ' folder to export has taken')
 
-        self.machines_checked = {(name, path) for name, path in cfg.tool_files.items() 
+        self.machines_checked = {(name, path) for name, path in self.checked_files.items() 
                                   if name in self.machines_selected}
 
-        for (sel_name, sel_path) in self.machines_checked:
+        
+        for sel_name, sel_path in self.machines_checked:
             tools_table = self.read_tooltable(sel_path+'tool.t')
             magazin_table = self.read_tooltable(sel_path+'tool_p.tch')
             
             for ext in self.fileformat_selected:
                 if ext in self.fileformat_allowed:
-                    if ext=="xlsx": 
+                    if ext=="xlsx":
                         tools_table.to_excel(self.path_field + "/" + sel_name + '.xlsx', index=False)
                         magazin_table.to_excel(self.path_field + "/" + sel_name + '_magazine.xlsx', index=False)
                     if ext=="csv":
@@ -76,37 +92,37 @@ class Model():
                     if ext=="json":
                         tools_table.to_json(self.path_field + "/" + sel_name + '.json')
                         magazin_table.to_json(self.path_field + "/" + sel_name + '_magazine.json')
-
-        # message = "Export is complete"
-        # return message
-
+                    return "Export is complete"
+            else:
+                return "No extension(s) selected"
+        else:
+            return "No machine(s) selected"
+            
 class MainTable_model(QAbstractTableModel, Model):
     def __init__(self, machine_selected):
         super().__init__()
         self.machine_selected = machine_selected
-        # self.headers = ["Scientist name", "Birthdate", "Contribution"]
-        # self.rows =    [("Newton", "1643-01-04", "Classical mechanics"),
-        #    ("Einstein", "1879-03-14", "Relativity"),
-        #    ("Darwin", "1809-02-12", "Evolution")]
-        if self.machine_selected in cfg.tool_files.keys():
-            self.tool_file = cfg.tool_files[self.machine_selected]
+        if self.machine_selected in self.checked_files.keys():
+            self.tool_file = self.checked_files[self.machine_selected]
             print(self.tool_file)
         mainmodel = Model()
-        self.data_ex = mainmodel.read_tooltable(self.tool_file + "tool.t")
-        self.rows = self.data_ex["NAME"]
+        self.tooldf = mainmodel.read_tooltable(self.tool_file + "tool.t")
+        self.magazindf = mainmodel.read_tooltable(self.tool_file + "tool_p.tch")
+        self.dfmerged = self.tooldf.loc[self.tooldf['T'].isin(self.magazindf['T'])]
+        self.dfmerged = self.dfmerged[['T', 'NAME', 'DOC']]
 
     def rowCount(self, index):
-        return self.data_ex.shape[0]
+        return self.dfmerged.shape[0]
 
     def columnCount(self, index):
-        return self.data_ex.shape[1]
+        return self.dfmerged.shape[1]
 
     def data(self, index, role):
         if role != Qt.DisplayRole:
             return QVariant()
-        return str(self.data_ex.iloc[index.row(), index.column()])
+        return str(self.dfmerged.iloc[index.row(), index.column()])
     
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole or orientation != Qt.Horizontal:
             return QVariant()
-        return self.data_ex.columns[section]
+        return self.dfmerged.columns[section]

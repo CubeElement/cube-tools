@@ -14,8 +14,8 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QFont, QIcon
 
 from functools import partial
-from model import Model, MainTable_model
-import config as cfg
+from cubetools.model import Model, MainTable_model
+import cubetools.config as cfg
 
 def display_start_fix():
     os.environ['DISPLAY'] = ':0'
@@ -82,14 +82,9 @@ class CubeToolsGUI(QWidget):
         self.fileformat_selected = set()
 
     def create_machinelist(self):
-        checked_machinelist = self.model.check_filelist().keys() 
-        if checked_machinelist:
-            return self.model.check_filelist().keys()   
-        else:
-            self.error_message("No files tool.t and tool_p.tch found")
-            return []
+        return self.model.checked_files.keys()
 
-    def error_message(self, message):
+    def error_message_popup(self, message):
         error_dialog = QErrorMessage()
         error_dialog.showMessage(message)
         error_dialog.exec_()
@@ -133,10 +128,12 @@ class CubeToolsGUI(QWidget):
     def exportSlot(self):
         self.machines_selected = list(item.text() for item in self.machine_list.selectedItems())
                                       
-        self.model.export_tooltable(self.get_savepathSlot(), 
+        export_result = self.model.export_tooltable(self.get_savepathSlot(), 
                                     self.machines_selected,
                                     self.fileformat_selected
                                     )
+        
+        self.error_message_popup(export_result)
     def show_maintable(self):
         dclickeditem = self.machine_list.currentItem().text()
         self.new_model = MainTable_model(dclickeditem)
@@ -153,7 +150,3 @@ def run():
     window = CubeToolsGUI(model=model)
     window.show()
     sys.exit(app.exec_())
-    
-if __name__ == '__main__':
-    display_start_fix()
-    run()
