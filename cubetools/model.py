@@ -1,3 +1,10 @@
+"""This script provides tools to handle an information from 
+CNC controls by Heidenhain (TNC530 files have been tested)
+By default tool.t (located on the CNC-Control) stores parameters for 
+everything a machine knows about all created cutting tools profiles
+(tool.t is fixed-width-field(fwf) text-file without any encryption)
+Additionally, theres istool_p.tch provides a slot# in the machine for each available tool
+The parameters of the tool.t-file are described in Manual to any TNC530-Control"""
 import pandas as pd
 import openpyxl
 import sys
@@ -9,6 +16,8 @@ from PyQt5.QtCore import QAbstractTableModel, Qt, QVariant
 import cubetools.config as cfg
 
 class Model():
+    '''Class contains the logic only without any UI elements handlers.
+    Creates data for the main UI window and direct export'''
     def __init__(self):
         super().__init__()
         self.dir_regex = r"^[a-zA-Z0-9/_.-]+$"
@@ -16,6 +25,13 @@ class Model():
         self.checked_files = self.check_filelist()
 
     def check_filelist(self):
+        '''Checks filepaths from config.py 
+        
+        Looked for tool-files in defined folders, and sorts off 
+        inelegible values 
+
+        Returns:
+        dict: {NAME:PATH} format of the checked machine entries from cfg'''
         filelist = {}
         if cfg.tool_files:
             for name, dir_path in cfg.tool_files.items():
@@ -27,31 +43,50 @@ class Model():
                     os.path.isfile(str_dir + 'tool_p.tch')):
                         filelist[name] = str_dir
                 else:
-                    return False
+                    return {}
             if not filelist:
-                return False
+                return {}
             return filelist
 
     def header_parser(self, toolt_file):
-        '''Parse headers indexes to define column widths.'''
+        '''Gets headers indexes to define column widths
+
+        Gets from headers line of a tool-file predefined 
+        (by control manufacturer) widths of columns
+
+        Parameters:
+            toolt_file(file): full path fwf(fixed-width-field) file
+
+        Returns:
+            colspecs_dict(dict): columns {<COL_NAME>: (i_start, i_end)} formatted'''
         colspecs_dict = {}
+        headers_line = []
         with open(toolt_file) as data_table:
             table = data_table.readlines()
-            names = table[1].split()
+            headers_line = table[1]
+            names = headers_line.split()
             col_idx = []
-            prev_i = int()
-            for i, k in enumerate(table[1]): # headers line in the .t-files
+            prev_i = 0
+            for i, k in enumerate(headers_line): 
                 if k!=" ":
                     if (i!=prev_i+1):
                         col_idx.append(i)
                     prev_i = i
-            colspecs_dict = {
-                name:(col_idx[i], col_idx[i+1]) for (name, i) in zip(names, range(len(col_idx)-1))
+            col_idx.append(len(headers_line)+1) # the last element index
+            colspecs_dict = {name:(col_idx[i], col_idx[i+1]) 
+                                    for (name, i) 
+                                    in zip(names, range(len(col_idx)-1))
                 }
         return colspecs_dict
         
     def read_tooltable(self, toolt_file):
-        '''Align imported tables with headers'''
+        '''Reads tool-file into pandas-dataframe
+
+        Parameters:
+            toolt_file(file): full path fwf(fixed-width-field) file
+
+        Returns:
+            tools(dataframe): pandas dataframe with all cols/rows'''
         headers = self.header_parser(toolt_file)
         tools = pd.read_fwf(toolt_file, 
                             skiprows=2, skipfooter=1, names=headers.keys(), 
@@ -64,7 +99,15 @@ class Model():
                          path_field: str, 
                          machines_selected: list, 
                          fileformat_selected: list):
-        '''Exports pandas-tables in various formats '''
+        '''Exports pandas-tables in various formats
+
+        Parameters:
+        path_field(str): path for the exported files
+        machines_selected(list): list of names to search for in the cfg
+        fileformat_selected(list): list of extensions to export
+        
+        Returns:
+        (str): message variable'''
         self.path_field = path_field
         self.machines_selected = machines_selected
         self.fileformat_selected = fileformat_selected
@@ -75,7 +118,6 @@ class Model():
 
         self.machines_checked = {(name, path) for name, path in self.checked_files.items() 
                                   if name in self.machines_selected}
-
         
         for sel_name, sel_path in self.machines_checked:
             tools_table = self.read_tooltable(sel_path+'tool.t')
@@ -99,6 +141,7 @@ class Model():
             return "No machine(s) selected"
             
 class MainTable_model(QAbstractTableModel, Model):
+    '''Provides a table data for a preview window before an actual export.'''
     def __init__(self, machine_selected):
         super().__init__()
         self.machine_selected = machine_selected
@@ -111,6 +154,7 @@ class MainTable_model(QAbstractTableModel, Model):
         self.dfmerged = self.tooldf.loc[self.tooldf['T'].isin(self.magazindf['T'])]
         self.dfmerged = self.dfmerged[['T', 'NAME', 'DOC']]
 
+    # standart requiered methods to describe a QAbstractModel subclass
     def rowCount(self, index):
         return self.dfmerged.shape[0]
 
