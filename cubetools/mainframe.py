@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (
                             QListWidget, QFileDialog, QApplication, 
                             QCheckBox, QGroupBox, QHBoxLayout,
                             QAbstractItemView, QDesktopWidget, QErrorMessage,
-                            QTableView, QVBoxLayout
+                            QTableView, QVBoxLayout, QHeaderView
                             )
 from PyQt5.QtGui import QFont, QIcon
 
@@ -25,7 +25,7 @@ class CubeToolsGUI(QWidget):
         super().__init__()
         self.model = model
         self.setWindowTitle("CubeTools")
-        self.setGeometry(2000, 20, 300, 500)
+        self.setGeometry(200, 20, 300, 500)
         self.layout = QGridLayout()
         self.setLayout(self.layout)
         self.ui_items()
@@ -138,6 +138,8 @@ class CubeToolsGUI(QWidget):
         dclickeditem = self.machine_list.currentItem().text()
         self.new_model = MainTable_model(dclickeditem)
         self.maintable_view = QTableView()
+        header = self.maintable_view.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeToContents)
         self.maintable_view.resize(800, 600)
         self.maintable_view.setWindowTitle(dclickeditem)
         self.maintable_view.setModel(self.new_model)

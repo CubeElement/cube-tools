@@ -6,6 +6,7 @@ everything a machine knows about all created cutting tools profiles
 Additionally, theres istool_p.tch provides a slot# in the machine for each available tool
 The parameters of the tool.t-file are described in Manual to any TNC530-Control"""
 import pandas as pd
+import numpy as np
 import openpyxl
 import sys
 import os
@@ -152,9 +153,11 @@ class MainTable_model(QAbstractTableModel, Model):
         self.tooldf = mainmodel.read_tooltable(self.tool_file + "tool.t")
         self.magazindf = mainmodel.read_tooltable(self.tool_file + "tool_p.tch")
         self.dfmerged = self.tooldf.loc[self.tooldf['T'].isin(self.magazindf['T'])]
-        self.dfmerged = self.dfmerged[['T', 'NAME', 'DOC']]
+        self.dfmerged = self.dfmerged[['T', 'NAME', 'DOC', "L"]]
+        print(self.dfmerged.info())
+        self.dfmerged = self.add_compare(self.dfmerged)
 
-    # standart requiered methods to describe a QAbstractModel subclass
+    # standart requiered methods   to describe a QAbstractModel subclass
     def rowCount(self, index):
         return self.dfmerged.shape[0]
 
@@ -170,3 +173,18 @@ class MainTable_model(QAbstractTableModel, Model):
         if role != Qt.DisplayRole or orientation != Qt.Horizontal:
             return QVariant()
         return self.dfmerged.columns[section]
+
+    def add_compare(self, dfmerged):
+        nominal_table = cfg.db_sample
+        dfmerged['L_NOM'] = dfmerged['T'].map(nominal_table.set_index('T')['L_NOM'])
+        dfmerged['Status'] = 'Not checked'
+        dfmerged['Status'] = np.where(dfmerged['L']>dfmerged['L_NOM'], 'Check is failed', 'Tool is OK')
+        dfmerged.loc[pd.isna(dfmerged['L_NOM'])==True, 'Status'] = 'Not checked'
+
+        return dfmerged
+
+    def check_toollength(self, meas, nomi):
+        if meas > nomi:
+            return True
+        else:
+            return False

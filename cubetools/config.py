@@ -13,3 +13,10 @@ tool_files = {"HERMLE_10":'./data-examples/HERMLE_10/',
 
 
 save_path = str(pathlib.Path().absolute()) + '/exported'
+
+db_sample = pd.DataFrame(
+    {
+        "T": pd.Series([2, 100, 201, 202], dtype="int64"),
+        "L_NOM": pd.Series([120, 5, 100, 90], dtype="float64")
+    }
+)
