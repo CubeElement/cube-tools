@@ -11,7 +11,6 @@ tool_files = {"MACHINE_01":'./data-examples/HERMLE_10/',
               "MACHINE_02":'./data-examples/HERMLE_09/'
               }
 
-
 save_path = str(pathlib.Path().absolute()) + '/exported'
 
 db_sample = pd.DataFrame(

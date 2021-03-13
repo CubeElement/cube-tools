@@ -184,9 +184,3 @@ class MainTable_model(QAbstractTableModel, Model):
         dfmerged.loc[pd.isna(dfmerged['L_NOM'])==True, 'Status'] = 'Not checked'
 
         return dfmerged
-
-    def check_toollength(self, meas, nomi):
-        if meas > nomi:
-            return True
-        else:
-            return False
