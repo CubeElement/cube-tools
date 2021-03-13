@@ -1,4 +1,6 @@
 exported/
+resources/
+data-examples/ToolDB/
 
 # Editors
 .vscode/

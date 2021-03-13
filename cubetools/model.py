@@ -99,48 +99,50 @@ class Model():
     def export_tooltable(self,  
                          path_field: str, 
                          machines_selected: list, 
-                         fileformat_selected: list):
+                         fileformat_selected: set):
         '''Exports pandas-tables in various formats
 
         Parameters:
         path_field(str): path for the exported files
         machines_selected(list): list of names to search for in the cfg
-        fileformat_selected(list): list of extensions to export
+        fileformat_selected(set): set of extensions to export
         
         Returns:
         (str): message variable'''
         self.path_field = path_field
         self.machines_selected = machines_selected
         self.fileformat_selected = fileformat_selected
-        self.fileformat_allowed = ['xlsx', 'csv', 'json']
+        self.fileformat_allowed = {'xlsx', 'csv', 'json'}
         print(self.machines_selected, '-- a list of machines')
         print(self.fileformat_selected, '-- extensions')
         print(self.path_field + ' folder to export has taken')
 
         self.machines_checked = {(name, path) for name, path in self.checked_files.items() 
                                   if name in self.machines_selected}
-        
+        print(self.fileformat_selected)
         for sel_name, sel_path in self.machines_checked:
             tools_table = self.read_tooltable(sel_path+'tool.t')
             magazin_table = self.read_tooltable(sel_path+'tool_p.tch')
             
-            for ext in self.fileformat_selected:
-                if ext in self.fileformat_allowed:
-                    if ext=="xlsx":
-                        tools_table.to_excel(self.path_field + "/" + sel_name + '.xlsx', index=False)
-                        magazin_table.to_excel(self.path_field + "/" + sel_name + '_magazine.xlsx', index=False)
-                    if ext=="csv":
-                        tools_table.to_csv(self.path_field + "/" + sel_name + '.csv', index=False)
-                        magazin_table.to_csv(self.path_field + "/" + sel_name + '_magazine.csv', index=False)
-                    if ext=="json":
-                        tools_table.to_json(self.path_field + "/" + sel_name + '.json')
-                        magazin_table.to_json(self.path_field + "/" + sel_name + '_magazine.json')
-                    return "Export is complete"
+            if self.fileformat_selected:
+                for ext in self.fileformat_selected:
+                    if ext in self.fileformat_allowed:
+                        if ext=="xlsx":
+                            tools_table.to_excel(self.path_field + "/" + sel_name + '.xlsx', index=False)
+                            magazin_table.to_excel(self.path_field + "/" + sel_name + '_magazine.xlsx', index=False)
+                        if ext=="csv":
+                            tools_table.to_csv(self.path_field + "/" + sel_name + '.csv', index=False)
+                            magazin_table.to_csv(self.path_field + "/" + sel_name + '_magazine.csv', index=False)
+                        if ext=="json":
+                            tools_table.to_json(self.path_field + "/" + sel_name + '.json')
+                            magazin_table.to_json(self.path_field + "/" + sel_name + '_magazine.json')
+                return "Export is complete"
             else:
                 return "No extension(s) selected"
+            
         else:
             return "No machine(s) selected"
-            
+        
 class MainTable_model(QAbstractTableModel, Model):
     '''Provides a table data for a preview window before an actual export.'''
     def __init__(self, machine_selected):
@@ -177,7 +179,7 @@ class MainTable_model(QAbstractTableModel, Model):
     def add_compare(self, dfmerged):
         nominal_table = cfg.db_sample
         dfmerged['L_NOM'] = dfmerged['T'].map(nominal_table.set_index('T')['L_NOM'])
-        dfmerged['Status'] = 'Not checked'
+        # dfmerged['Status'] = 'Not checked'
         dfmerged['Status'] = np.where(dfmerged['L']>dfmerged['L_NOM'], 'Check is failed', 'Tool is OK')
         dfmerged.loc[pd.isna(dfmerged['L_NOM'])==True, 'Status'] = 'Not checked'
 
