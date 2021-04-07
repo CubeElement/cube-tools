@@ -22,8 +22,6 @@ def test_check_filelist_correct(correct_path, main_model):
     "",
 ])
 
-
-
 def test_check_filelist_incorrect(incorrect_path, main_model):
     mdl = main_model
     cfg.tool_files = {"HERMLE_10":incorrect_path}

@@ -159,7 +159,7 @@ class MainTable_model(QAbstractTableModel, Model):
         print(self.dfmerged.info())
         self.dfmerged = self.add_compare(self.dfmerged)
 
-    # standart requiered methods   to describe a QAbstractModel subclass
+    # standart requiered methods to describe a QAbstractModel subclass
     def rowCount(self, index):
         return self.dfmerged.shape[0]
 
