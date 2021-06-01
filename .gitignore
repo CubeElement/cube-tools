@@ -1,7 +1,9 @@
 exported/
 resources/
 data-examples/ToolDB/
+input/
 
+*.swp
 # Editors
 .vscode/
 .idea/
