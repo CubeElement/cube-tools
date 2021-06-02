@@ -9,9 +9,9 @@ import os
 
 def test_check_filelist_correct(correct_path, main_model):
     mdl = main_model
-    cfg.tool_files = {"HERMLE_10":correct_path}
-    expected = {"HERMLE_10":correct_path}
-    assert mdl.check_filelist() == expected
+    cfg.path_to_cnc = {"MACHINE_01":correct_path}
+    expected = {"MACHINE_01":correct_path}
+    assert mdl.check_cnc_filepaths() == expected
 
 @pytest.mark.parametrize("incorrect_path", [
     "random_string", 
@@ -24,12 +24,12 @@ def test_check_filelist_correct(correct_path, main_model):
 
 def test_check_filelist_incorrect(incorrect_path, main_model):
     mdl = main_model
-    cfg.tool_files = {"HERMLE_10":incorrect_path}
-    assert mdl.check_filelist() == {}
+    cfg.path_to_cnc = {"HERMLE_10":incorrect_path}
+    assert mdl.check_cnc_filepaths() == {}
 
 @pytest.mark.parametrize("possible_header", [
     {"FIRST":(0, 8),"SECOND":(8, 15),"THIRD":(15, 22)},
 ])
 def test_header_parser(test_toolt, main_model, possible_header):
     mdl = main_model
-    assert mdl.header_parser(test_toolt) == possible_header
+    assert mdl.parse_headers(test_toolt) == possible_header
