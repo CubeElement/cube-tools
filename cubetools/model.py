@@ -1,7 +1,6 @@
-"""This script provides tools to handle an information from
-CNC controls by Heidenhain (TNC530 files have been tested)
+"""
 By default tool.t (located on the CNC-Control) stores parameters for
-everything a machine knows about all created cutting tools profiles
+everything a machine knows about all created tools profiles
 (tool.t is fixed-width-field(fwf) text-file without any encryption)
 Additionally, tool_p.tch provides a slot# in a given machine for each of
 available tools. The parameters of the tool.t-file are described in Manual to
@@ -16,8 +15,7 @@ import cubetools.config as cfg
 
 
 class Model():
-    '''Class contains the logic only without any UI elements handlers.
-    Creates data for the main UI window and direct export'''
+    '''Creates data for the UI and export'''
     def __init__(self):
         super().__init__()
         self.valid_cncfilelist = self.check_cnc_filepaths()
@@ -33,25 +31,16 @@ class Model():
         filelist = {}
         if cfg.path_to_cnc:
             for name, dir_path in cfg.path_to_cnc.items():
-                self.dirname_regex = r"^[a-zA-Z0-9/_.-]+$"
                 dir_path_string = str(dir_path)
-                dir_match = re.match(self.dirname_regex, dir_path_string)
-                is_matched = bool(dir_match)
-                if is_matched:
-                    if (os.path.isfile(dir_path_string + 'tool.t') and
-                       os.path.isfile(dir_path_string + 'tool_p.tch')):
-                        filelist[name] = dir_path_string
-                else:
-                    return {}
+                if (os.path.isfile(dir_path_string + '/tool.t') and
+                   os.path.isfile(dir_path_string + '/tool_p.tch')):
+                    filelist[name] = dir_path_string
             if not filelist:
                 return {}
             return filelist
 
     def parse_headers(self, toolt_cncfile):
         '''Gets headers indexes to define column widths
-
-        Gets from headers line of a tool-file predefined
-        (by control manufacturer) widths of columns
 
         Parameters:
             toolt_cncfile(file): full path fwf(fixed-width-field) file
@@ -144,7 +133,7 @@ class Model():
 
 
 class ToolSummaryTable(QAbstractTableModel, Model):
-    '''Provides datatable for the preview window before an actual export.'''
+    '''Provides datatable for the preview'''
     def __init__(self, machine_selected):
         super().__init__()
         mainmodel = Model()
