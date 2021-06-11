@@ -1,16 +1,6 @@
 # cube-tools
 
-**cube-tools** is a small utility for faster and easier search and maintenance routty for retrieving information about available tools from Heidenhain CNC-Controls
-Topics
-machines cam
-Resources
-Readme
-License
-MIT License
-Releases
-No releases published
-Create a new release
-ines for big tool-magazines/ToolDBs.
+**cube-tools** is a small utility for faster and easier search and maintenance routines for big tool-magazines/ToolDBs.
 
 Script offers simple UI with the machines list, formats and path to export.
 
