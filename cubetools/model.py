@@ -1,10 +1,3 @@
-"""
-By default tool.t (located on the CNC-Control) stores parameters for
-everything a machine knows about all created tools profiles
-(tool.t is fixed-width-field(fwf) text-file without any encryption)
-Additionally, tool_p.tch provides a slot# in a given machine for each of
-available tools. The parameters of the tool.t-file are described in Manual to
-any TNC530-Control"""
 import pandas as pd
 import numpy as np
 import os
@@ -21,10 +14,7 @@ class Model():
         self.valid_cncfilelist = self.check_cnc_filepaths()
 
     def check_cnc_filepaths(self):
-        '''Checks filepaths from config.py
-
-        Look for tool-files in defined folders, and sorts off
-        inelegible values
+        '''Returns correct filepaths from config.py
 
         Returns:
         dict: {NAME:PATH} format of the checked machine entries from cfg'''
@@ -60,7 +50,7 @@ class Model():
                     if (i != prev_i+1):
                         col_idx.append(i)
                     prev_i = i
-            col_idx.append(len(headers_line)+1)  # index of the last element
+            col_idx.append(len(headers_line)+1)
             colspecs_dict = {name: (col_idx[i], col_idx[i+1])
                              for (name, i)
                              in zip(column_names, range(len(col_idx)-1))}
@@ -78,9 +68,12 @@ class Model():
         dftools = pd.read_fwf(toolt_cncfile,
                               skiprows=2, skipfooter=1, names=headers.keys(),
                               colspecs=list(headers.values()), index_col=None)
-        dftools = dftools.dropna(subset=["T"])
-        dftools = dftools.astype({"T": int})
-        return dftools
+        if "T" in dftools.columns:
+            dftools = dftools.dropna(subset=["T"])
+            dftools = dftools.astype({"T": int})
+            return dftools
+        else:
+            return False
 
     def export_tooltable(self,
                          path_field: str,
@@ -94,7 +87,7 @@ class Model():
         fileformats_selected(set): set of extensions to export
 
         Returns:
-        (str): message text'''
+        message(str): message text'''
         message = ''
         self.ui_path_field = path_field
         self.machines_selected = machines_selected
@@ -109,7 +102,7 @@ class Model():
             toolt = self.read_tooltable(dir_path+'tool.t')
             toolpt = self.read_tooltable(dir_path+'tool_p.tch')
             file_to_save = self.ui_path_field + "/" + mach_name
-            if self.fileformats_selected:
+            if self.fileformats_selected and (toolt is not False):
                 for ext in self.fileformats_selected:
                     if ext in self.fileformats_allowed:
                         if ext == "xlsx":
@@ -126,7 +119,9 @@ class Model():
                             toolt.to_json(file_to_save + '.json')
                             toolpt.to_json(file_to_save + '_magazine.json')
                 message = 'Export is complete'
-            else:
+            elif toolt is False:
+                message = 'Invalid file structure'
+            elif self.fileformats_selected == set():
                 message = 'No extension (s) selected'
         else:
             return message

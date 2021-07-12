@@ -2,7 +2,7 @@ import pytest
 from cubetools import model
 
 
-TOOLT_CONTENT = "first line\nFIRST   SECOND THIRD "
+TOOLT_CONTENT = "first line\nT       NAME   THIRD "
 TOOLPTCH_CONTENT = " "
 
 @pytest.fixture
