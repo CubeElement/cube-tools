@@ -7,8 +7,8 @@ import pandas as pd
 pd.set_option('max_columns', None)
 pd.set_option('max_rows', None)
 
-path_to_cnc = {"MACHINE_01":'./data-examples/HERMLE_10/', 
-              "MACHINE_02":'./data-examples/HERMLE_09/'
+path_to_cnc = {"MACHINE_01": './data-examples/HERMLE_10/',
+               "MACHINE_02": './data-examples/HERMLE_09/'
               }
 
 export_path = str(pathlib.Path().absolute()) + '/exported'

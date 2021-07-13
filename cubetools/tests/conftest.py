@@ -3,23 +3,27 @@ from cubetools import model
 
 
 TOOLT_CONTENT = "first line\nT       NAME   THIRD "
-TOOLPTCH_CONTENT = " "
+TOOLPTCH_CONTENT = "first line\nT       NAME   THIRD "
+
 
 @pytest.fixture
 def main_model():
     mdl = model.Model()
     return mdl
 
+
 @pytest.fixture(scope="session")
 def test_tool_dir(tmp_path_factory):
-    tool_files_dir = tmp_path_factory.mktemp("tool_files")
+    tool_files_dir = tmp_path_factory.mktemp("tool_files/")
     return tool_files_dir
+
 
 @pytest.fixture(scope="session")
 def test_toolt(tmp_path_factory, test_tool_dir):
     toolt = test_tool_dir / "tool.t"
     toolt.write_text(TOOLT_CONTENT)
     return toolt
+
 
 @pytest.fixture(scope="session")
 def test_toolptch(tmp_path_factory, test_tool_dir):

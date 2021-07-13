@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import os
-import re
 from PyQt5.QtCore import QAbstractTableModel, Qt, QVariant
 
 import cubetools.config as cfg
@@ -89,7 +88,7 @@ class Model():
         Returns:
         message(str): message text'''
         message = ''
-        self.ui_path_field = path_field
+        self.ui_path_field = str(path_field)
         self.machines_selected = machines_selected
         self.fileformats_selected = fileformats_selected
         self.fileformats_allowed = {'xlsx', 'csv', 'json'}
@@ -99,8 +98,8 @@ class Model():
         if self.actual_machinelist == dict():
             message = 'No machine (s) selected'
         for mach_name, dir_path in self.actual_machinelist.items():
-            toolt = self.read_tooltable(dir_path+'tool.t')
-            toolpt = self.read_tooltable(dir_path+'tool_p.tch')
+            toolt = self.read_tooltable(dir_path + "/tool.t")
+            toolpt = self.read_tooltable(dir_path + "/tool_p.tch")
             file_to_save = self.ui_path_field + "/" + mach_name
             if self.fileformats_selected and (toolt is not False):
                 for ext in self.fileformats_selected:
