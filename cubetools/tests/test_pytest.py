@@ -15,7 +15,8 @@ def test_check_filelist_correct(main_model, test_tool_dir, test_toolt,
     [{"T":(0, 8), "NAME":(8, 15), "THIRD":(15, 22)}]
 )
 def test_header_parser(test_toolt, main_model, possible_header):
-    assert main_model.parse_headers(test_toolt) == possible_header
+    header_line = "T       NAME   THIRD "
+    assert main_model.parse_headers(header_line) == possible_header
 
 
 def test_read_tooltable(main_model, test_toolt):
@@ -28,6 +29,6 @@ def test_read_tooltable(main_model, test_toolt):
 def test_export_tooltable(main_model, test_tool_dir, test_toolt, test_toolptch):
     machines = "MACHINE_01"
     exts = {"csv"}
-    main_model.export_tooltable(test_tool_dir, machines, exts)
+    main_model.export_tooltable(machines, exts, test_tool_dir)
     assert (os.path.isfile(test_tool_dir / 'MACHINE_01.csv'))
     assert (os.path.isfile(test_tool_dir / 'MACHINE_01_magazine.csv'))
