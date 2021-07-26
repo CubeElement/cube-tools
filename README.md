@@ -41,14 +41,14 @@ $ git clone https://github.com/CubeElement/cube-tools
 # Go into the repository
 $ cd cube-tools
 
-# Install pyqt5 and pandas into your conda virtual environment (or you can use `pip` as well)
-$ conda install -c dsdale24 pyqt5
-$ conda install pandas
+# Install required packages from the .txt (in pip-venv for example): 
+$ pip install -r requirements.txt
 
 # Run the app
 $ python3 -m cubetools
 ```
-Then it is needed to configure a path to files on the machines in `config.py` as follows:
+Then it is needed to configure a path to files on the machines in `config.py`
+(names of the machine entities should be unique):
 ```python 
 path_to_cnc = {"MACHINE_01":'./data-examples/HERMLE_10/',
                "MACHINE_02":'./data-examples/HERMLE_09/'}
