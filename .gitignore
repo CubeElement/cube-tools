@@ -2,6 +2,7 @@ exported/
 resources/
 data-examples/ToolDB/
 input/
+cbtools/
 
 *.swp
 # Editors

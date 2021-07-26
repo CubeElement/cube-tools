@@ -72,7 +72,10 @@ class CubeToolsGUI(QWidget):
 
     def reset_ui(self):
         self.path_field.setText(cfg.export_path)
+        self.machines_selected = list()
         self.fileformats_selected = set()
+        self.path_to_export = str()
+        self.isMachlist = self.isExtlist = self.isPath = True
 
     def create_machinelist(self):
         return self.model.valid_cncfilelist.keys()
@@ -90,15 +93,17 @@ class CubeToolsGUI(QWidget):
         self.chbox_json.stateChanged.connect(self.set_fileformats)
         self.machine_list.doubleClicked.connect(self.show_summarytable)
 
+    def set_machines_slot(self):
+        self.machines_selected = list(item.text()
+                                      for item
+                                      in self.machine_list.selectedItems())
+
     def set_fileformats(self):
         if (self.sender().isChecked() and self.sender().text()
            not in self.fileformats_selected):
             self.fileformats_selected.add(self.sender().text())
-            # print(self.ext_set, " item added")
         elif self.sender().text() in self.fileformats_selected:
             self.fileformats_selected.remove(self.sender().text())
-            # print(self.ext_set, " item removed")
-        return self.fileformats_selected
 
     def set_savepath_slot(self):
         default_savepath = cfg.export_path
@@ -107,21 +112,46 @@ class CubeToolsGUI(QWidget):
                             title_text,
                             default_savepath))
         self.path_field.setText(self.savepath)
-        return self.path_field.text()
+        self.path_to_export = self.path_field.text()
 
-    def get_savepath_slot(self):
-        return self.path_field.text()
+    def get_machines_slot(self) -> list:
+        self.set_machines_slot()  #  update selection list
+        if self.machines_selected != list():
+            self.isMachlist = True
+            return self.machines_selected
+        else:
+            self.isMachlist = False
+            self.message_popup("No machines selected to export")
+            return self.machines_selected
+
+    def get_fileformats(self) -> set:
+        if self.fileformats_selected != set():
+            self.isExtlist = True
+            return self.fileformats_selected
+        else:
+            self.isExtlist = False
+            self.message_popup("No extensions selected to export")
+            return self.fileformats_selected
+
+    def get_savepath_slot(self) -> str:
+        self.path_to_export = self.path_field.text()
+        if self.path_to_export != "":
+            self.isPath = True
+            return self.path_to_export
+        else:
+            self.isPath = False
+            self.message_popup("Path to save can not be empty")
+            return self.path_to_export
 
     def export_slot(self):
-        self.machines_selected = list(item.text()
-                                      for item
-                                      in self.machine_list.selectedItems())
-
-        export_result = self.model.export_tooltable(self.get_savepath_slot(),
-                                                    self.machines_selected,
-                                                    self.fileformats_selected
-                                                    )
-        self.message_popup(export_result)
+        machlist = self.get_machines_slot()
+        extlist = self.get_fileformats()
+        path = self.get_savepath_slot()
+        if self.isMachlist == self.isExtlist == self.isPath == True:
+            self.model.export_tooltable(machlist, extlist, path)
+            self.message_popup("Export complete!")
+        else:
+            self.message_popup("Export failed")
 
     def show_summarytable(self):
         dclickeditem = self.machine_list.currentItem().text()
