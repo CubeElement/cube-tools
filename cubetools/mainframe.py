@@ -72,9 +72,7 @@ class CubeToolsGUI(QWidget):
 
     def reset_ui(self):
         self.path_field.setText(cfg.export_path)
-        self.machines_selected = list()
         self.fileformats_selected = set()
-        self.path_to_export = str()
         self.isMachlist = self.isExtlist = self.isPath = True
 
     def create_machinelist(self):
@@ -93,11 +91,6 @@ class CubeToolsGUI(QWidget):
         self.chbox_json.stateChanged.connect(self.set_fileformats)
         self.machine_list.doubleClicked.connect(self.show_summarytable)
 
-    def set_machines_slot(self):
-        self.machines_selected = list(item.text()
-                                      for item
-                                      in self.machine_list.selectedItems())
-
     def set_fileformats(self):
         if (self.sender().isChecked() and self.sender().text()
            not in self.fileformats_selected):
@@ -112,17 +105,18 @@ class CubeToolsGUI(QWidget):
                             title_text,
                             default_savepath))
         self.path_field.setText(self.savepath)
-        self.path_to_export = self.path_field.text()
 
     def get_machines_slot(self) -> list:
-        self.set_machines_slot()  #  update selection list
-        if self.machines_selected != list():
+        machines_selected = list(item.text()
+                                for item
+                                in self.machine_list.selectedItems())
+        if machines_selected != list():
             self.isMachlist = True
-            return self.machines_selected
+            return machines_selected
         else:
             self.isMachlist = False
             self.message_popup("No machines selected to export")
-            return self.machines_selected
+            return machines_selected
 
     def get_fileformats(self) -> set:
         if self.fileformats_selected != set():
@@ -134,14 +128,13 @@ class CubeToolsGUI(QWidget):
             return self.fileformats_selected
 
     def get_savepath_slot(self) -> str:
-        self.path_to_export = self.path_field.text()
-        if self.path_to_export != "":
+        path_to_export = self.path_field.text()
+        if path_to_export != "":
             self.isPath = True
-            return self.path_to_export
+            return path_to_export
         else:
             self.isPath = False
             self.message_popup("Path to save can not be empty")
-            return self.path_to_export
 
     def export_slot(self):
         machlist = self.get_machines_slot()

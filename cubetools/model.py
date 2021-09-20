@@ -86,10 +86,10 @@ class Model():
         fileformats_selected(set): set of extensions to export
 
         Returns:
-        message(str): message text'''
+        saved files in formats from [fileformats_selected] in folder [pathfield]'''
         self.fileformats_allowed = {'xlsx', 'csv', 'json'}
-        self.machines_selected = machines_selected
         self.fileformats = (fileformats_selected & self.fileformats_allowed)
+        self.machines_selected = machines_selected
         self.ui_path_field = str(path_field)
         self.machinelist = dict([(name, path) for name, path
                                         in self.valid_cncfilelist.items()
