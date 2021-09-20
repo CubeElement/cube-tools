@@ -68,7 +68,7 @@ class CubeToolsGUI(QWidget):
         pos = self.frameGeometry()
         cpoint = QDesktopWidget().availableGeometry().center()
         pos.moveCenter(cpoint)
-        self.move(pos.topLeft())
+        self.move(pos.topLeft().x() - 350, pos.topLeft().y())
 
     def reset_ui(self):
         self.path_field.setText(cfg.export_path)
@@ -155,6 +155,7 @@ class CubeToolsGUI(QWidget):
         self.maintable_view.resize(800, 600)
         self.maintable_view.setWindowTitle(dclickeditem)
         self.maintable_view.setModel(self.toolsummary_data)
+        self.maintable_view.move(self.pos().x() + 300, self.pos().y())
         self.maintable_view.show()
 
 
