@@ -2,9 +2,11 @@
 
 **cube-tools** is a small utility for faster and easier search and maintenance routines for big tool-magazines/ToolDBs.
 
+![Screenshot from 2021-03-13 10-24-09](https://user-images.githubusercontent.com/70653782/111025715-4cd9f000-83e6-11eb-950d-f9404f2dd0f9.png)
+
 Script offers simple UI with the machines list, formats and path to export.
 
-![Screenshot from 2021-03-13 10-24-09](https://user-images.githubusercontent.com/70653782/111025715-4cd9f000-83e6-11eb-950d-f9404f2dd0f9.png)
+<img src="https://user-images.githubusercontent.com/70653782/131312398-10246f0a-68f2-4932-9c69-a82e32f3c647.gif" width="750" />
 
 Data analysis based on ```pandas``` library produces useful status overview for each tool in user's reference ToolDB (nominal and measured length compared).
 
